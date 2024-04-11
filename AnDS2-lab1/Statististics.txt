@@ -1,0 +1,11 @@
+Для 1000 элементов
+
+BinarySearchTree:
+Average Insertion Time: 0.03919 seconds
+Average Search Time: 0.000111 seconds
+Average Erase Time: 2e-05 seconds
+
+std::vector<int>:
+Average Insertion Time: 0.00596 seconds
+Average Search Time: 0.001018 seconds
+Average Erase Time: 0.000759 seconds
