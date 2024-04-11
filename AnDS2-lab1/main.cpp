@@ -43,7 +43,7 @@ private:
         else if (key > node->key)
             return insertNode(node->right, key);
 
-        return false; // Duplicate key, not inserted
+        return false;
     }
 
     bool containsNode(const Node* node, int key) const {
@@ -55,7 +55,7 @@ private:
         else if (key > node->key)
             return containsNode(node->right, key);
 
-        return true; // Key found
+        return true;
     }
 
     bool eraseNode(Node*& node, int key) {
@@ -167,58 +167,55 @@ int main() {
 
     BinarySearchTree bst;
     double insertTime, searchTime, eraseTime;
-
+    std::cout << "BinarySearchTree: " << std::endl;
     insertTime = measureTime([&]() {
-        for (int i = 0; i < 100; ++i) { // 100 попыток заполнения
-            bst = BinarySearchTree(); // Сброс дерева перед каждой попыткой
-            for (int j = 0; j < 1000; ++j) {
+            bst = BinarySearchTree();
+            for (int j = 0; j < 100000; ++j) {
                 bst.insert(lcg());
             }
-        }
-        }, 100); // 100 попыток
+        }, 100);
+    std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
 
     searchTime = measureTime([&]() {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             bst.contains(lcg());
         }
-        }, 1000); // 1000 попыток
+        }, 1000);
+    std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
 
     eraseTime = measureTime([&]() {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             bst.erase(lcg());
         }
-        }, 1000); // 1000 попыток
+        }, 1000); 
 
-    std::cout << "BinarySearchTree: " << std::endl;
-    std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
-    std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
     std::cout << "Average Erase Time: " << eraseTime << " seconds" << std::endl;
 
+    std::cout << "std::vector<int>: " << std::endl;
     std::vector<int> vec;
     insertTime = measureTime([&]() {
-        for (int i = 0; i < 100; ++i) {
-            vec.clear(); // Очищаем вектор перед каждой попыткой
-            for (int j = 0; j < 1000; ++j) {
+            vec.clear();
+            for (int j = 0; j < 100000; ++j) {
                 vec.push_back(lcg());
             }
-        }
-        }, 100); // 100 попыток
+        }, 100); 
+
+    std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
 
     searchTime = measureTime([&]() {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             std::find(vec.begin(), vec.end(), lcg());
         }
-        }, 1000); // 1000 попыток
+        }, 1000); 
+
+    std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
 
     eraseTime = measureTime([&]() {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             vec.erase(std::remove(vec.begin(), vec.end(), lcg()), vec.end());
         }
-        }, 1000); // 1000 попыток
+        }, 1000);
 
-    std::cout << "std::vector<int>: " << std::endl;
-    std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
-    std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
     std::cout << "Average Erase Time: " << eraseTime << " seconds" << std::endl;
 
     return 0;

@@ -9,3 +9,29 @@ std::vector<int>:
 Average Insertion Time: 0.00596 seconds
 Average Search Time: 0.001018 seconds
 Average Erase Time: 0.000759 seconds
+
+
+
+Для 10000 элементов
+
+BinarySearchTree:
+Average Insertion Time: 0.4287 seconds
+Average Search Time: 0.002006 seconds
+Average Erase Time: 0.00015 seconds
+
+std::vector<int>:
+Average Insertion Time: 0.05995 seconds
+Average Search Time: 0.06736 seconds
+Average Erase Time: 0.007091 seconds
+
+Для 100000 элементов
+
+BinarySearchTree:
+Average Insertion Time: 0.07534 seconds
+Average Search Time: 0.037356 seconds
+Average Erase Time: 0.001484 seconds
+
+std::vector<int>:
+Average Insertion Time: 0.00594 seconds
+Average Search Time: 3.8362 seconds
+Average Erase Time: 0.7577 seconds
