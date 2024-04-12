@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 
+#define SIZE 10
+
 class BinarySearchTree {
 private:
     struct Node {
@@ -32,61 +34,57 @@ private:
         }
     }
 
-    bool insertNode(Node*& node, int key) {
-        if (!node) {
-            node = new Node(key);
-            return true;
+    Node* insert(Node* node, int key) {
+        if (node == nullptr) {
+            return new Node(key);
         }
 
         if (key < node->key)
-            return insertNode(node->left, key);
+            node->left = insert(node->left, key);
         else if (key > node->key)
-            return insertNode(node->right, key);
+            node->right = insert(node->right, key);
 
-        return false;
+        return node;
+
     }
 
-    bool containsNode(const Node* node, int key) const {
-        if (!node)
+    bool contains(const Node* node, int key) const {
+        if (node == nullptr)
             return false;
 
+        if (key == node->key)
+            return true;
         if (key < node->key)
-            return containsNode(node->left, key);
-        else if (key > node->key)
-            return containsNode(node->right, key);
-
-        return true;
+            return contains(node->left, key);
+        else
+            return contains(node->right, key);
     }
 
-    bool eraseNode(Node*& node, int key) {
-        if (!node)
-            return false;
+    Node* erase(Node* node, int key) {
+        if (node == nullptr)
+            return nullptr;
 
         if (key < node->key)
-            return eraseNode(node->left, key);
+            node->left = erase(node->left, key);
         else if (key > node->key)
-            return eraseNode(node->right, key);
+            node->right = erase(node->right, key);
         else {
-            if (!node->left && !node->right) {
+            if (node->left == nullptr) {
+                Node* temp = node->right;
                 delete node;
-                node = nullptr;
+                return temp;
             }
-            else if (!node->left) {
-                Node* temp = node;
-                node = node->right;
-                delete temp;
-            }
-            else if (!node->right) {
-                Node* temp = node;
-                node = node->left;
-                delete temp;
+            if (node->right == nullptr) {
+                Node* temp = node->left;
+                delete node;
+                return temp;
             }
             else {
                 Node* minRight = findMin(node->right);
                 node->key = minRight->key;
-                eraseNode(node->right, minRight->key);
+                node->right = erase(node->right, minRight->key);
             }
-            return true;
+            return node;
         }
     }
 
@@ -96,8 +94,8 @@ private:
         return node;
     }
 
-    void printTree(const Node* node) const {
-        if (node) {
+    void printTree(Node* node) const {
+        if (node != nullptr) {
             printTree(node->left);
             std::cout << node->key << " ";
             printTree(node->right);
@@ -107,7 +105,7 @@ private:
 public:
     BinarySearchTree() : root(nullptr) {}
 
-    BinarySearchTree(const BinarySearchTree& other) : root(nullptr) {
+    BinarySearchTree(const BinarySearchTree& other){
         root = copyTree(other.root);
     }
 
@@ -129,17 +127,46 @@ public:
     }
 
     bool insert(int key) {
-        return insertNode(root, key);
+        if (contains(key))
+            return false;
+        root = insert(root, key);
+        return true;
     }
 
     bool contains(int key) const {
-        return containsNode(root, key);
+        return contains(root, key);
     }
 
     bool erase(int key) {
-        return eraseNode(root, key);
+        return erase(root, key);
     }
+
+ 
 };
+
+BinarySearchTree intersection(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
+    BinarySearchTree result; // Создаем пустое дерево для результата
+
+    // Добавляем элементы в результирующее дерево, если они присутствуют в обоих деревьях
+    for (int i = 0; i <= 100; ++i) {
+        if (tree1.contains(i) && tree2.contains(i))
+            result.insert(i);
+    }
+
+    return result;
+}
+
+BinarySearchTree difference(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
+    BinarySearchTree result = tree1; // Создаем копию первого дерева для результата
+
+    // Удаляем элементы из результирующего дерева, если они присутствуют во втором дереве
+    for (int i = 0; i <= 100; ++i) {
+        if (result.contains(i) && tree2.contains(i))
+            result.erase(i);
+    }
+
+    return result;
+}
 
 size_t lcg() {
     static size_t x = 0;
@@ -162,7 +189,54 @@ double measureTime(Function&& func, int repetitions) {
     return totalTime / repetitions;
 }
 
+void testDiff() {
+    BinarySearchTree tree1;
+    BinarySearchTree tree2;
+
+    tree1.insert(1);
+    tree1.insert(3);
+    tree1.insert(4);
+    tree1.insert(5);
+
+    tree2.insert(3);
+    tree2.insert(4);
+    tree2.insert(5);
+    tree2.insert(6);
+    tree2.insert(7);
+
+    BinarySearchTree diffResult = difference(tree1, tree2);
+    diffResult.print(); // Ожидаемый результат: 1
+}
+
+void testIns() {
+    BinarySearchTree tree1;
+    BinarySearchTree tree2;
+
+    tree1.insert(1);
+    tree1.insert(2);
+    tree1.insert(3);
+    tree1.insert(4);
+    tree1.insert(5);
+
+    tree2.insert(3);
+    tree2.insert(4);
+    tree2.insert(5);
+    tree2.insert(6);
+    tree2.insert(7);
+
+    BinarySearchTree intersectResult = intersection(tree1, tree2);
+    intersectResult.print(); // Ожидаемый результат: 3, 4, 5
+}
+
 int main() {
+
+    std::cout << "Intersection (Tree 1 & Tree 2): ";
+    testDiff();
+    std::cout << "Difference (Tree 1 - Tree 2): ";
+    testIns();
+
+
+
     srand(static_cast<unsigned>(time(nullptr)));
 
     BinarySearchTree bst;
@@ -170,21 +244,21 @@ int main() {
     std::cout << "BinarySearchTree: " << std::endl;
     insertTime = measureTime([&]() {
             bst = BinarySearchTree();
-            for (int j = 0; j < 100000; ++j) {
+            for (int j = 0; j < SIZE; ++j) {
                 bst.insert(lcg());
             }
         }, 100);
     std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
 
     searchTime = measureTime([&]() {
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < SIZE; ++i) {
             bst.contains(lcg());
         }
         }, 1000);
     std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
 
     eraseTime = measureTime([&]() {
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < SIZE; ++i) {
             bst.erase(lcg());
         }
         }, 1000); 
@@ -195,7 +269,7 @@ int main() {
     std::vector<int> vec;
     insertTime = measureTime([&]() {
             vec.clear();
-            for (int j = 0; j < 100000; ++j) {
+            for (int j = 0; j < SIZE; ++j) {
                 vec.push_back(lcg());
             }
         }, 100); 
@@ -203,7 +277,7 @@ int main() {
     std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
 
     searchTime = measureTime([&]() {
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < SIZE; ++i) {
             std::find(vec.begin(), vec.end(), lcg());
         }
         }, 1000); 
@@ -211,7 +285,7 @@ int main() {
     std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
 
     eraseTime = measureTime([&]() {
-        for (int i = 0; i < 100000; ++i) {
+        for (int i = 0; i < SIZE; ++i) {
             vec.erase(std::remove(vec.begin(), vec.end(), lcg()), vec.end());
         }
         }, 1000);
