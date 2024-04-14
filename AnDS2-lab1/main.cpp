@@ -70,23 +70,22 @@ private:
             node->right = erase(node->right, key);
         else {
             if (node->left == nullptr) {
-                Node* temp = node->right;
+                Node* rightChild = node->right;
                 delete node;
-                return temp;
+                return rightChild;
             }
             if (node->right == nullptr) {
-                Node* temp = node->left;
+                Node* leftChild = node->left;
                 delete node;
-                return temp;
+                return leftChild;
             }
-            else {
-                Node* minRight = findMin(node->right);
-                node->key = minRight->key;
-                node->right = erase(node->right, minRight->key);
-            }
-            return node;
+            Node* minRight = findMin(node->right);
+            node->key = minRight->key;
+            node->right = erase(node->right, minRight->key);
         }
-    }
+        return node;
+     }
+    
 
     Node* findMin(Node* node) const {
         while (node->left)
@@ -138,7 +137,10 @@ public:
     }
 
     bool erase(int key) {
-        return erase(root, key);
+        if (!contains(key))
+            return false;
+        root = erase(root, key);
+        return true;
     }
 
  
@@ -174,27 +176,13 @@ size_t lcg() {
     return x;
 }
 
-template<typename Function>
-double measureTime(Function&& func, int repetitions) {
-    clock_t start, end;
-    double totalTime = 0;
-
-    for (int i = 0; i < repetitions; ++i) {
-        start = clock();
-        func();
-        end = clock();
-        totalTime += static_cast<double>(end - start) / CLOCKS_PER_SEC;
-    }
-
-    return totalTime / repetitions;
-}
 
 void testDiff() {
     BinarySearchTree tree1;
     BinarySearchTree tree2;
 
     tree1.insert(1);
-    tree1.insert(3);
+    tree1.insert(2);
     tree1.insert(4);
     tree1.insert(5);
 
@@ -228,6 +216,36 @@ void testIns() {
     intersectResult.print(); // ќжидаемый результат: 3, 4, 5
 }
 
+template<typename Func>
+double measureTime(Func function, int repetitions) {
+    auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < repetitions; ++i) {
+        function();
+    }
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    return duration.count() / repetitions;
+}
+
+double measureSearchTime(int containerSize, int repetitions) {
+    std::vector<int> numbers;
+    for (int i = 0; i < containerSize; ++i) {
+        numbers.push_back(lcg());
+    }
+    double totalTime = 0.0;
+    for (int i = 0; i < repetitions; ++i) {
+        BinarySearchTree bst;
+        for (int j = 0; j < containerSize; ++j) {
+            bst.insert(numbers[j]);
+        }
+        auto searchTime = measureTime([&bst, &numbers, containerSize, this]() {
+            bst.contains(numbers[lcg() % containerSize]);
+            }, 1);
+        totalTime += searchTime;
+    }
+    return totalTime / repetitions;
+}
+
 int main() {
 
     std::cout << "Intersection (Tree 1 & Tree 2): ";
@@ -242,13 +260,17 @@ int main() {
     BinarySearchTree bst;
     double insertTime, searchTime, eraseTime;
     std::cout << "BinarySearchTree: " << std::endl;
-    insertTime = measureTime([&]() {
-            bst = BinarySearchTree();
-            for (int j = 0; j < SIZE; ++j) {
-                bst.insert(lcg());
-            }
+    double insertTime = measureTime([&]() {
+        for (int j = 0; j < SIZE; ++j) {
+            bst.insert(lcg());
+        }
+        bst = BinarySearchTree();
+        for (int j = 0; j < SIZE; ++j) {
+            bst.insert(bst[j]);
+        }
         }, 100);
     std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
+
 
     searchTime = measureTime([&]() {
         for (int i = 0; i < SIZE; ++i) {
