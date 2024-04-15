@@ -3,6 +3,7 @@
 #include <ctime>
 #include <vector>
 #include <algorithm>
+#include <chrono>
 
 #define SIZE 10
 
@@ -217,33 +218,36 @@ void testIns() {
 }
 
 template<typename Func>
-double measureTime(Func function, int repetitions) {
-    auto start = std::chrono::steady_clock::now();
-    for (int i = 0; i < repetitions; ++i) {
-        function();
-    }
-    auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> duration = end - start;
-    return duration.count() / repetitions;
-}
-
-double measureSearchTime(int containerSize, int repetitions) {
-    std::vector<int> numbers;
-    for (int i = 0; i < containerSize; ++i) {
-        numbers.push_back(lcg());
-    }
+double measureTime(Func create_bst, Func function, int repetitions) {
     double totalTime = 0.0;
     for (int i = 0; i < repetitions; ++i) {
-        BinarySearchTree bst;
-        for (int j = 0; j < containerSize; ++j) {
-            bst.insert(numbers[j]);
-        }
-        auto searchTime = measureTime([&bst, &numbers, containerSize, this]() {
-            bst.contains(numbers[lcg() % containerSize]);
-            }, 1);
-        totalTime += searchTime;
+        create_bst(); // 
+        auto start = std::chrono::steady_clock::now();
+        function();
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> duration = end - start; // Исправленный вариант
+        totalTime += duration.count();
     }
     return totalTime / repetitions;
+}
+
+template<typename Func>
+double measureTime(Func function, int repetitions) {
+    double totalTime = 0.0;
+    for (int i = 0; i < repetitions; ++i) {
+        auto start = std::chrono::steady_clock::now();
+        function();
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> duration = end - start; // Исправленный вариант
+        totalTime += duration.count();
+    }
+    return totalTime / repetitions;
+}
+
+void fill(BinarySearchTree& bst, int size) {
+    for (int i = 0; i < size; ++i) {
+        bst.insert(lcg());
+    }
 }
 
 int main() {
@@ -253,6 +257,9 @@ int main() {
     std::cout << "Difference (Tree 1 - Tree 2): ";
     testIns();
 
+    BinarySearchTree tree1;
+    fill(tree1, 4);
+    tree1.print();
 
 
     srand(static_cast<unsigned>(time(nullptr)));
@@ -261,12 +268,7 @@ int main() {
     double insertTime, searchTime, eraseTime;
     std::cout << "BinarySearchTree: " << std::endl;
     double insertTime = measureTime([&]() {
-        for (int j = 0; j < SIZE; ++j) {
-            bst.insert(lcg());
-        }
-        bst = BinarySearchTree();
-        for (int j = 0; j < SIZE; ++j) {
-            bst.insert(bst[j]);
+        
         }
         }, 100);
     std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
