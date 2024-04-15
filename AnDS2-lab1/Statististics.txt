@@ -1,37 +1,30 @@
-Для 1000 элементов
+Tree
+Average fill time 1000 elements: 0.509803 ms
+Average search time 1000 elements: 0.1242 us
+Average insertion and deletion 1000 elements: 0.5254 us
 
-BinarySearchTree:
-Average Insertion Time: 0.03919 seconds
-Average Search Time: 0.000111 seconds
-Average Erase Time: 2e-05 seconds
-
-std::vector<int>:
-Average Insertion Time: 0.00596 seconds
-Average Search Time: 0.001018 seconds
-Average Erase Time: 0.000759 seconds
+Vector
+Average fill time 1000 elements: 0.067037 ms
+Average search time 1000 elements: 1.0524 us
+Average insertion and deletion time 1000 elements: 1.7769 us
 
 
+Tree
+Average fill time 10000 elements: 8.31969 ms
+Average search time 10000 elements: 0.5355 us
+Average insertion and deletion 10000 elements: 1.2077 us
 
-Для 10000 элементов
+Vector
+Average fill time 10000 elements: 0.828909 ms
+Average search time 10000 elements: 10.106 us
+Average insertion and deletion time 10000 elements: 8.952 us
 
-BinarySearchTree:
-Average Insertion Time: 0.4287 seconds
-Average Search Time: 0.002006 seconds
-Average Erase Time: 0.00015 seconds
+Tree
+Average fill time 100000 elements: 95.9811 ms
+Average search time 100000 elements: 0.4818 us
+Average insertion and deletion 100000 elements: 1.4331 us
 
-std::vector<int>:
-Average Insertion Time: 0.05995 seconds
-Average Search Time: 0.06736 seconds
-Average Erase Time: 0.007091 seconds
-
-Для 100000 элементов
-
-BinarySearchTree:
-Average Insertion Time: 0.07534 seconds
-Average Search Time: 0.037356 seconds
-Average Erase Time: 0.001484 seconds
-
-std::vector<int>:
-Average Insertion Time: 0.00594 seconds
-Average Search Time: 3.8362 seconds
-Average Erase Time: 0.7577 seconds
+Vector
+Average fill time 100000 elements: 6.6141 ms
+Average search time 100000 elements: 67.8618 us
+Average insertion and deletion time 100000 elements: 73.6551 us

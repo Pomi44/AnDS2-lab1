@@ -1,11 +1,10 @@
 #include <iostream>
 #include <cstdlib>
-#include <ctime>
 #include <vector>
 #include <algorithm>
 #include <chrono>
 
-#define SIZE 10
+#define SIZE 100000
 
 class BinarySearchTree {
 private:
@@ -160,9 +159,7 @@ BinarySearchTree intersection(const BinarySearchTree& tree1, const BinarySearchT
 }
 
 BinarySearchTree difference(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
-    BinarySearchTree result = tree1; // Создаем копию первого дерева для результата
-
-    // Удаляем элементы из результирующего дерева, если они присутствуют во втором дереве
+    BinarySearchTree result = tree1;
     for (int i = 0; i <= 100; ++i) {
         if (result.contains(i) && tree2.contains(i))
             result.erase(i);
@@ -194,7 +191,7 @@ void testDiff() {
     tree2.insert(7);
 
     BinarySearchTree diffResult = difference(tree1, tree2);
-    diffResult.print(); // Ожидаемый результат: 1
+    diffResult.print();
 }
 
 void testIns() {
@@ -214,7 +211,7 @@ void testIns() {
     tree2.insert(7);
 
     BinarySearchTree intersectResult = intersection(tree1, tree2);
-    intersectResult.print(); // Ожидаемый результат: 3, 4, 5
+    intersectResult.print();
 }
 
 template<typename Func>
@@ -225,96 +222,111 @@ double measureTime(Func create_bst, Func function, int repetitions) {
         auto start = std::chrono::steady_clock::now();
         function();
         auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> duration = end - start; // Исправленный вариант
+        std::chrono::duration<double> duration = end - start;
         totalTime += duration.count();
     }
     return totalTime / repetitions;
 }
 
-template<typename Func>
-double measureTime(Func function, int repetitions) {
-    double totalTime = 0.0;
-    for (int i = 0; i < repetitions; ++i) {
-        auto start = std::chrono::steady_clock::now();
-        function();
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> duration = end - start; // Исправленный вариант
-        totalTime += duration.count();
-    }
-    return totalTime / repetitions;
-}
-
-void fill(BinarySearchTree& bst, int size) {
-    for (int i = 0; i < size; ++i) {
-        bst.insert(lcg());
-    }
-}
 
 int main() {
 
     std::cout << "Intersection (Tree 1 & Tree 2): ";
     testDiff();
+    std::cout << std::endl;
     std::cout << "Difference (Tree 1 - Tree 2): ";
     testIns();
-
-    BinarySearchTree tree1;
-    fill(tree1, 4);
-    tree1.print();
-
+    std::cout << std::endl;
 
     srand(static_cast<unsigned>(time(nullptr)));
-
-    BinarySearchTree bst;
-    double insertTime, searchTime, eraseTime;
-    std::cout << "BinarySearchTree: " << std::endl;
-    double insertTime = measureTime([&]() {
-        
+    std::cout << "Tree" << std::endl;
+    {
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < 100; ++i) {
+            BinarySearchTree tree;
+            for (int j = 0; j < SIZE; ++j)
+                tree.insert(lcg());
         }
-        }, 100);
-    std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
+        auto end = std::chrono::steady_clock::now();
+        auto diff = end - start;
+        std::cout << "Average fill time " << SIZE << " elements: "
+            << std::chrono::duration <double, std::milli>(diff).count() / 100 << " ms\n";
+    }
+    {
+        BinarySearchTree tree;
+        for (int j = 0; j < SIZE; ++j)
+            tree.insert(lcg());
 
-
-    searchTime = measureTime([&]() {
-        for (int i = 0; i < SIZE; ++i) {
-            bst.contains(lcg());
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < 1000; ++i) {
+            tree.contains(lcg());
         }
-        }, 1000);
-    std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
+        auto end = std::chrono::steady_clock::now();
+        auto diff = end - start;
+        std::cout << "Average search time " << SIZE << " elements: "
+            << std::chrono::duration <double, std::micro>(diff).count() / 1000 << " us\n";
+    }
+    {
+        BinarySearchTree tree;
+        for (int j = 0; j < SIZE; ++j)
+            tree.insert(lcg());
 
-    eraseTime = measureTime([&]() {
-        for (int i = 0; i < SIZE; ++i) {
-            bst.erase(lcg());
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < 1000; ++i) {
+            tree.insert(lcg());
+            tree.erase(lcg());
         }
-        }, 1000); 
-
-    std::cout << "Average Erase Time: " << eraseTime << " seconds" << std::endl;
-
-    std::cout << "std::vector<int>: " << std::endl;
-    std::vector<int> vec;
-    insertTime = measureTime([&]() {
-            vec.clear();
-            for (int j = 0; j < SIZE; ++j) {
+        auto end = std::chrono::steady_clock::now();
+        auto diff = end - start;
+        std::cout << "Average insertion and deletion " << SIZE << " elements: "
+            << std::chrono::duration <double, std::micro>(diff).count() / 1000 << " us\n";
+    }
+    std::cout << std::endl;
+    std::cout << "Vector" << std::endl;
+    {
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < 100; ++i) {
+            std::vector<int> vec;
+            for (int j = 0; j < SIZE; ++j)
                 vec.push_back(lcg());
-            }
-        }, 100); 
+        }
+        auto end = std::chrono::steady_clock::now();
+        auto diff = end - start;
+        std::cout << "Average fill time " << SIZE << " elements: "
+            << std::chrono::duration <double, std::milli>(diff).count() / 100 << " ms\n";
+    }
 
-    std::cout << "Average Insertion Time: " << insertTime << " seconds" << std::endl;
 
-    searchTime = measureTime([&]() {
-        for (int i = 0; i < SIZE; ++i) {
+    {
+        std::vector<int> vec;
+        for (int j = 0; j < SIZE; ++j)
+            vec.push_back(lcg());
+
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < 1000; ++i) {
             std::find(vec.begin(), vec.end(), lcg());
         }
-        }, 1000); 
+        auto end = std::chrono::steady_clock::now();
+        auto diff = end - start;
+        std::cout << "Average search time " << SIZE << " elements: "
+            << std::chrono::duration <double, std::micro>(diff).count() / 1000 << " us\n";
+    }
 
-    std::cout << "Average Search Time: " << searchTime << " seconds" << std::endl;
 
-    eraseTime = measureTime([&]() {
-        for (int i = 0; i < SIZE; ++i) {
+    {
+        std::vector<int> vec;
+        for (int j = 0; j < SIZE; ++j)
+            vec.push_back(lcg());
+
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < 1000; ++i) {
+            vec.push_back(lcg());
             vec.erase(std::remove(vec.begin(), vec.end(), lcg()), vec.end());
         }
-        }, 1000);
-
-    std::cout << "Average Erase Time: " << eraseTime << " seconds" << std::endl;
-
+        auto end = std::chrono::steady_clock::now();
+        auto diff = end - start;
+        std::cout << "Average insertion and deletion time " << SIZE << " elements: "
+            << std::chrono::duration <double, std::micro>(diff).count() / 1000 << " us\n";
+    }
     return 0;
 }
