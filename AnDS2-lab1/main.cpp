@@ -101,6 +101,12 @@ private:
         }
     }
 
+    size_t size(Node* node) const {
+        if (node == nullptr)
+            return 0;
+        return 1 + size(node->left) + size(node->right);
+    }
+
 public:
     BinarySearchTree() : root(nullptr) {}
 
@@ -143,14 +149,16 @@ public:
         return true;
     }
 
+    size_t size() const {
+        return size(root);
+    }
  
 };
 
 BinarySearchTree intersection(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
-    BinarySearchTree result; // Создаем пустое дерево для результата
+    BinarySearchTree result;
 
-    // Добавляем элементы в результирующее дерево, если они присутствуют в обоих деревьях
-    for (int i = 0; i <= 100; ++i) {
+    for (int i = 0; i <= result.size(); ++i) {
         if (tree1.contains(i) && tree2.contains(i))
             result.insert(i);
     }
@@ -160,7 +168,7 @@ BinarySearchTree intersection(const BinarySearchTree& tree1, const BinarySearchT
 
 BinarySearchTree difference(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
     BinarySearchTree result = tree1;
-    for (int i = 0; i <= 100; ++i) {
+    for (int i = 0; i <= result.size(); ++i) {
         if (result.contains(i) && tree2.contains(i))
             result.erase(i);
     }
