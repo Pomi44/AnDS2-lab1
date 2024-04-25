@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <chrono>
+#include <unordered_set>
 
 #define SIZE 100000
 
@@ -106,6 +107,15 @@ private:
             return 0;
         return 1 + size(node->left) + size(node->right);
     }
+    
+    void fillVector(Node* node, std::vector<int>& result) const {
+        if (node) {
+            fillVector(node->left, result);
+            result.push_back(node->key);
+            fillVector(node->right, result);
+        }
+    }
+    
 
 public:
     BinarySearchTree() : root(nullptr) {}
@@ -153,24 +163,47 @@ public:
         return size(root);
     }
  
+    std::vector<int> tree_to_vector() const {
+        std::vector<int> result;
+        fillVector(root, result);
+        return result;
+    }
 };
 
-BinarySearchTree intersection(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
-    BinarySearchTree result;
+void print_vector(std::vector<int> vec) {
+    for (int elem : vec) {
+        std::cout << elem << " ";
+    }
+    std::cout << std::endl;
+}
 
-    for (int i = 0; i <= result.size(); ++i) {
-        if (tree1.contains(i) && tree2.contains(i))
-            result.insert(i);
+std::vector<int> intersection(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
+
+    std::vector<int> result;
+    std::vector<int> vec1 = tree1.tree_to_vector();
+    std::vector<int> vec2 = tree2.tree_to_vector();
+
+    std::unordered_set<int> set1(vec1.begin(), vec1.end());
+
+    for (int num : vec2) {
+        if (set1.count(num))
+            result.push_back(num);
     }
 
     return result;
 }
 
-BinarySearchTree difference(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
-    BinarySearchTree result = tree1;
-    for (int i = 0; i <= result.size(); ++i) {
-        if (result.contains(i) && tree2.contains(i))
-            result.erase(i);
+std::vector<int> difference(const BinarySearchTree& tree1, const BinarySearchTree& tree2) {
+
+    std::vector<int> result;
+    std::vector<int> vec1 = tree1.tree_to_vector();
+    std::vector<int> vec2 = tree2.tree_to_vector();
+
+    std::unordered_set<int> set2(vec2.begin(), vec2.end());
+
+    for (int num : vec1) {
+        if (!set2.count(num))
+            result.push_back(num);
     }
 
     return result;
@@ -186,40 +219,45 @@ size_t lcg() {
 void testDiff() {
     BinarySearchTree tree1;
     BinarySearchTree tree2;
-
-    tree1.insert(1);
-    tree1.insert(2);
     tree1.insert(4);
     tree1.insert(5);
+    tree1.insert(8);
+    tree1.insert(12);
+    tree1.insert(16);
+    tree1.insert(21);
 
-    tree2.insert(3);
-    tree2.insert(4);
+    tree2.insert(1);
+    tree2.insert(2);
     tree2.insert(5);
-    tree2.insert(6);
     tree2.insert(7);
+    tree2.insert(12);
+    tree2.insert(17);
+    tree2.insert(21);
+    tree2.insert(30);
 
-    BinarySearchTree diffResult = difference(tree1, tree2);
-    diffResult.print();
+
+    std::vector<int> diffResult = difference(tree1, tree2);
+    print_vector(diffResult);
 }
 
 void testIns() {
     BinarySearchTree tree1;
     BinarySearchTree tree2;
 
-    tree1.insert(1);
-    tree1.insert(2);
+    tree1.insert(-100);
+    tree1.insert(20000);
     tree1.insert(3);
-    tree1.insert(4);
-    tree1.insert(5);
+    tree1.insert(7);
+    tree1.insert(9);
 
+    tree2.insert(1);
     tree2.insert(3);
-    tree2.insert(4);
     tree2.insert(5);
-    tree2.insert(6);
     tree2.insert(7);
+    tree2.insert(9);
 
-    BinarySearchTree intersectResult = intersection(tree1, tree2);
-    intersectResult.print();
+    std::vector<int> intersectResult = intersection(tree1, tree2);
+    print_vector(intersectResult);
 }
 
 template<typename Func>
@@ -235,6 +273,7 @@ double measureTime(Func create_bst, Func function, int repetitions) {
     }
     return totalTime / repetitions;
 }
+
 
 
 int main() {
